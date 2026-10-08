@@ -1,0 +1,36 @@
+name: Build Prolly Meta
+
+on:
+  workflow_dispatch:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract source
+        run: |
+          mkdir project
+          unzip -q prolly-meta-fabric-1.21.11-source.zip -d project
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.2.0"
+
+      - name: Build
+        working-directory: project/prolly-meta-mod
+        run: gradle build --no-daemon
+
+      - name: Upload mod JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: prolly-meta
+          path: project/prolly-meta-mod/build/libs/*.jar
